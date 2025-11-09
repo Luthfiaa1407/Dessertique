@@ -60,10 +60,12 @@
                     <a href="{{ route('admin.orders.index') }}" class="nav-link">Pesanan</a>
                     <a href="{{ route('logout') }}" class="nav-link">Logout</a>
                     @elseif(Auth::user()->role === 'customer')
-                        <a href="{{ url('/') }}" class="nav-link">Home</a>
-                        <a href="{{ route('products.index') }}" class="nav-link">Produk</a>
-                        <a href="{{ route('orders.index') }}" class="nav-link">Pesanan Saya</a>
-                        <a href="{{ route('logout') }}" class="nav-link">Logout</a>
+                    <a href="{{ route('customer.dashboard') }}" class="nav-link">Dashboard</a>
+                    <a href="{{ route('products.index') }}" class="nav-link">Semua Produk</a>
+                    <a href="{{ route('categories.index') }}" class="nav-link">Kategori</a>
+                    <a href="{{ route('orders.index') }}" class="nav-link">Pesanan Saya</a>
+                    <a href="{{ route('customer.profile') }}" class="nav-link">Profile</a>
+                    <a href="{{ route('logout') }}" class="nav-link">Logout</a>
                     @endif
                 @endauth
 
