@@ -5,6 +5,7 @@ use App\Http\Controllers\ProductController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\CustomerController; // TAMBAHKAN INI
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -29,7 +30,7 @@ Route::get('products/{product}', [ProductController::class, 'show'])->name('prod
 Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(function () {
     Route::get('/dashboard', [AdminController::class, 'index'])->name('dashboard');
 
-    // Users Management Routes - YANG DIPERBAIKI
+    // Users Management Routes
     Route::get('/users', [AuthController::class, 'adminUsersIndex'])->name('users.index');
     Route::get('/users/create', [AuthController::class, 'adminUsersCreate'])->name('users.create');
     Route::post('/users', [AuthController::class, 'adminUsersStore'])->name('users.store');
@@ -60,12 +61,21 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     Route::delete('/orders/{order}', [OrderController::class, 'destroy'])->name('orders.destroy');
 });
 
-// Customer Routes
+// Customer Routes - YANG DIPERBAIKI
 Route::middleware('auth')->group(function () {
+    // Dashboard customer dengan controller
+    Route::get('/customer/dashboard', [CustomerController::class, 'dashboard'])->name('customer.dashboard');
+    
+    // Profile customer
+    Route::get('/customer/profile', [CustomerController::class, 'profile'])->name('customer.profile');
+    Route::put('/customer/profile', [CustomerController::class, 'updateProfile'])->name('customer.profile.update');
+    
+    // Route dashboard lama (redirect ke customer dashboard)
     Route::get('/dashboard', function () {
-        return view('customer.dashboard');
+        return redirect()->route('customer.dashboard');
     })->name('dashboard');
 
+    // Orders customer
     Route::get('orders', [OrderController::class, 'index'])->name('orders.index');
     Route::get('orders/create', [OrderController::class, 'create'])->name('orders.create');
     Route::post('orders', [OrderController::class, 'store'])->name('orders.store');
