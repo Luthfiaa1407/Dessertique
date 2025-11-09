@@ -4,8 +4,10 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use App\Models\Category;
+use App\Models\Order;
 
-class Product extends Model
+class product extends Model
 {
     use HasFactory;
 
@@ -20,10 +22,9 @@ class Product extends Model
 
     public function category()
     {
-        return $this->belongsTo(categories::class);
+        return $this->belongsTo(Category::class);
     }
 
-    // Relasi ke orders
     public function orders()
     {
         return $this->hasMany(Order::class);
