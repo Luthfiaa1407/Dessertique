@@ -28,6 +28,14 @@ Route::get('products/{product}', [ProductController::class, 'show'])->name('prod
 // Admin Routes
 Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(function () {
     Route::get('/dashboard', [AdminController::class, 'index'])->name('dashboard');
+
+    // Users Management Routes - YANG DIPERBAIKI
+    Route::get('/users', [AuthController::class, 'adminUsersIndex'])->name('users.index');
+    Route::get('/users/create', [AuthController::class, 'adminUsersCreate'])->name('users.create');
+    Route::post('/users', [AuthController::class, 'adminUsersStore'])->name('users.store');
+    Route::get('/users/{user}/edit', [AuthController::class, 'adminUsersEdit'])->name('users.edit');
+    Route::put('/users/{user}', [AuthController::class, 'adminUsersUpdate'])->name('users.update');
+    Route::delete('/users/{user}', [AuthController::class, 'adminUsersDestroy'])->name('users.destroy');
     
     // Products Admin Routes
     Route::get('/products', [ProductController::class, 'adminIndex'])->name('products.index');

@@ -54,6 +54,7 @@
                 @auth
                     @if(Auth::user()->role === 'admin')
                     <a href="{{ route('admin.dashboard') }}" class="nav-link">Dashboard</a>
+                    <a href="{{ route('admin.users.index') }}" class="nav-link">Pengguna</a>
                     <a href="{{ route('admin.products.index') }}" class="nav-link">Produk</a>
                     <a href="{{ route('admin.categories.index') }}" class="nav-link">Kategori</a>
                     <a href="{{ route('admin.orders.index') }}" class="nav-link">Pesanan</a>
