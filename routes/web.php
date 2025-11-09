@@ -27,7 +27,7 @@ Route::get('/dashboard', function () {
         return redirect('/login')->withErrors(['error' => 'Silakan login terlebih dahulu!']);
     }
 
-    if ($user->role === 'admin') {
+    if(session()->get('role') == 'admin') {
         return view('admin.dashboard');
     }
 
