@@ -151,7 +151,6 @@
                                     <th width="50">#</th>
                                     <th>Nama</th>
                                     <th>Email</th>
-                                    <th>Telepon</th>
                                     <th>Role</th>
                                     <th>Tanggal Daftar</th>
                                     <th width="120" class="text-center">Aksi</th>
@@ -172,7 +171,6 @@
                                             </div>
                                         </td>
                                         <td>{{ $user->email }}</td>
-                                        <td>{{ $user->phone ?? '-' }}</td>
                                         <td>
                                             <span class="badge rounded-pill 
                                                 @if($user->role == 'admin') badge-role-admin
