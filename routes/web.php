@@ -34,25 +34,17 @@ Route::get('/dashboard', function () {
         return redirect('/login')->withErrors(['error' => 'Silakan login terlebih dahulu!']);
     }
 
-    $role = session('user.role');
-
-    // Tampilkan dashboard sesuai role
-    if ($role === 'admin') {
-        return view('dashboard.admin');
-    } else {
-        return view('dashboard.user');
-    }
+    return view('dashboard'); // Cuma satu file
 })->name('dashboard');
 
 Route::get('categories', [CategoryController::class, 'index'])->name('categories.index');
-Route::get('categories/{category}', [CategoryController::class, 'show'])->name('categories.show');
-
 // Hanya admin
 Route::get('categories/create', [CategoryController::class, 'create'])->name('categories.create');
-Route::post('categories', [CategoryController::class, 'store'])->name('categories.store');
 Route::get('categories/{category}/edit', [CategoryController::class, 'edit'])->name('categories.edit');
 Route::put('categories/{category}', [CategoryController::class, 'update'])->name('categories.update');
 Route::delete('categories/{category}', [CategoryController::class, 'destroy'])->name('categories.destroy');
+
+Route::get('categories/{category}', [CategoryController::class, 'show'])->name('categories.show');
 
 Route::get('products', [ProductController::class, 'index'])->name('products.index');
 Route::get('products/{product}', [ProductController::class, 'show'])->name('products.show');
