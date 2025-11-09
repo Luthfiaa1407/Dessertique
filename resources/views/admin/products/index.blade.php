@@ -3,58 +3,79 @@
 @section('title', 'Kelola Produk')
 
 @section('content')
-<div class="d-flex justify-content-between align-items-center mb-3">
-    <h2>Kelola Produk</h2>
-    <!-- PERBAIKI: products.create → admin.products.create -->
-    <a href="{{ route('admin.products.create') }}" class="btn btn-primary">+ Tambah Produk</a>
+<div class="container">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="h3 mb-0">Kelola Produk</h1>
+        <a href="{{ route('admin.products.create') }}" class="btn btn-primary">
+            + Tambah Produk
+        </a>
+    </div>
+
+    @if(session('success'))
+        <div class="alert alert-success">{{ session('success') }}</div>
+    @endif
+
+    @if($errors->any())
+        <div class="alert alert-danger">
+            <ul class="mb-0">
+                @foreach($errors->all() as $e)
+                    <li>{{ $e }}</li>
+                @endforeach
+            </ul>
+        </div>
+    @endif
+
+    <div class="card shadow-sm">
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table mb-0 align-middle">
+                    <thead class="table-light">
+                        <tr>
+                            <th style="width:60px;">#</th>
+                            <th>Nama</th>
+                            <th>Kategori</th>
+                            <th style="width:140px;">Harga</th>
+                            <th style="width:80px;">Stok</th>
+                            <th style="width:190px;">Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @forelse($products as $index => $product)
+                            <tr>
+                                <td>{{ $index + 1 }}</td>
+                                <td>{{ $product->name }}</td>
+                                <td>{{ $product->category->name ?? '-' }}</td>
+                                <td>Rp {{ number_format($product->price, 0, ',', '.') }}</td>
+                                <td>{{ $product->stock }}</td>
+                                <td>
+                                    <a href="{{ route('admin.products.edit', $product->id) }}"
+                                       class="btn btn-sm btn-warning me-1">
+                                        Edit
+                                    </a>
+
+                                    <form action="{{ route('admin.products.destroy', $product->id) }}"
+                                          method="POST"
+                                          class="d-inline"
+                                          onsubmit="return confirm('Yakin ingin menghapus produk ini?')">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button class="btn btn-sm btn-danger">
+                                            Hapus
+                                        </button>
+                                    </form>
+                                </td>
+                            </tr>
+                        @empty
+                            <tr>
+                                <td colspan="6" class="text-center py-4 text-muted">
+                                    Belum ada produk.
+                                </td>
+                            </tr>
+                        @endforelse
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
 </div>
-
-@if(session('success'))
-    <div class="alert alert-success">{{ session('success') }}</div>
-@endif
-
-@if($errors->any())
-    <div class="alert alert-danger">{{ $errors->first() }}</div>
-@endif
-
-<table class="table table-striped table-hover align-middle">
-    <thead>
-        <tr>
-            <th>#</th>
-            <th>Nama</th>
-            <th>Kategori</th>
-            <th>Harga</th>
-            <th>Stok</th>
-            <th style="width: 160px;">Aksi</th>
-        </tr>
-    </thead>
-    <tbody>
-        @forelse($products as $index => $product)
-            <tr>
-                <td>{{ $index + 1 }}</td>
-                <td>{{ $product->name }}</td>
-                <td>{{ $product->category->name ?? '-' }}</td>
-                <td>Rp {{ number_format($product->price, 0, ',', '.') }}</td>
-                <td>{{ $product->stock }}</td>
-                <td>
-                    <!-- PERBAIKI: products.edit → admin.products.edit -->
-                    <a href="{{ route('admin.products.edit', $product->id) }}" class="btn btn-sm btn-warning">Edit</a>
-                    
-                    <!-- PERBAIKI: products.destroy → admin.products.destroy -->
-                    <form action="{{ route('admin.products.destroy', $product->id) }}"
-                          method="POST" class="d-inline"
-                          onsubmit="return confirm('Yakin hapus produk ini?')">
-                        @csrf
-                        @method('DELETE')
-                        <button class="btn btn-sm btn-danger">Hapus</button>
-                    </form>
-                </td>
-            </tr>
-        @empty
-            <tr>
-                <td colspan="6" class="text-center text-muted">Belum ada produk.</td>
-            </tr>
-        @endforelse
-    </tbody>
-</table>
 @endsection
