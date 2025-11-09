@@ -4,7 +4,7 @@
 
 @section('content')
 <div class="text-center mb-4">
-    <h2>Halo, {{ session('user')->name }} 👋</h2>
+    <h2>Selamat datang, {{ session('user.name') }}</h2>
     <p class="text-muted">Selamat datang di Dessertique! Yuk cek produk kami~</p>
 </div>
 

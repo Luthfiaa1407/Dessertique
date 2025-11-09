@@ -1,24 +1,91 @@
 <!DOCTYPE html>
-<html lang="id">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>@yield('title', 'Dashboard')</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-</head>
-<body class="bg-light">
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark mb-4">
-        <div class="container">
-            <a class="navbar-brand" href="#">Dessertique</a>
-            <ul class="navbar-nav ms-auto">
-                <li class="nav-item"><a class="nav-link" href="{{ route('dashboard') }}">Dashboard</a></li>
-                <li class="nav-item"><a class="nav-link" href="{{ route('logout') }}">Logout</a></li>
-            </ul>
-        </div>
-    </nav>
+    <title>{{ config('app.name', 'Dessertique') }}</title>
 
-    <div class="container">
+    <link 
+        rel="stylesheet" 
+        href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+    >
+
+    <style>
+        body {
+            background: #ffffff;
+        }
+
+        header, footer {
+            background: #e9f7ff;
+            border-color: #b9e3ff;
+        }
+
+        header {
+            border-bottom: 2px solid #b9e3ff;
+        }
+
+        footer {
+            border-top: 2px solid #b9e3ff;
+        }
+
+        a.nav-link {
+            color: #007bff;
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        a.nav-link:hover {
+            text-decoration: underline;
+        }
+
+        .brand {
+            color: #007bff;
+            font-weight: 700;
+        }
+    </style>
+</head>
+
+<body>
+    <header>
+        <div class="container d-flex justify-content-between align-items-center py-3">
+            <h3 class="brand m-0">Dessertique</h3>
+
+            <nav class="d-flex gap-4">
+                @auth
+                    @if(Auth::user()->role === 'admin')
+                        <a href="{{ route('admin.dashboard') }}" class="nav-link">Dashboard</a>
+                        <a href="{{ route('products.index') }}" class="nav-link">Produk</a>
+                        <a href="{{ route('categories.index') }}" class="nav-link">Kategori</a>
+                        <a href="{{ route('orders.index') }}" class="nav-link">Pesanan</a>
+                        <a href="{{ route('logout') }}" class="nav-link">Logout</a>
+                    @elseif(Auth::user()->role === 'customer')
+                        <a href="{{ url('/') }}" class="nav-link">Home</a>
+                        <a href="{{ route('products.index') }}" class="nav-link">Produk</a>
+                        <a href="{{ route('orders.index') }}" class="nav-link">Pesanan Saya</a>
+                        <a href="{{ route('logout') }}" class="nav-link">Logout</a>
+                    @endif
+                @endauth
+
+                @guest
+                    <a href="{{ url('/') }}" class="nav-link">Home</a>
+                    <a href="{{ route('products.index') }}" class="nav-link">Produk</a>
+                    <a href="{{ route('login') }}" class="nav-link">Login</a>
+                    <a href="{{ route('register.form') }}" class="nav-link">Daftar</a>
+                @endguest
+            </nav>
+        </div>
+    </header>
+
+    <main class="py-4">
         @yield('content')
-    </div>
+    </main>
+
+    <footer>
+        <div class="container text-center py-3">
+            <p class="m-0 fw-semibold text-primary">
+                © {{ date('Y') }} Dessertique — All Rights Reserved.
+            </p>
+        </div>
+    </footer>
 </body>
 </html>
