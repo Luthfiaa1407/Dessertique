@@ -15,7 +15,7 @@
     </div>
 @endif
 
-<form action="{{ route('products.store') }}" method="POST" enctype="multipart/form-data" class="card p-4 shadow-sm">
+<form action="{{ route('admin.products.store') }}" method="POST" enctype="multipart/form-data" class="card p-4 shadow-sm">
     @csrf
     <div class="mb-3">
         <label class="form-label">Kategori</label>
@@ -47,7 +47,7 @@
         <input type="file" name="image" class="form-control">
     </div>
     <div class="d-flex justify-content-between">
-        <a href="/admin/products" class="btn btn-secondary">Kembali</a>
+        <a href="{{ route('admin.products.index') }}" class="btn btn-secondary">Kembali</a>
         <button type="submit" class="btn btn-primary">Simpan</button>
     </div>
 </form>

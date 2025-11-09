@@ -2,48 +2,47 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Category;
+use App\Models\Categories;
 use App\Models\Product;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 
 class ProductController extends Controller
 {
     /**
-     * === Daftar produk (dapat diakses semua user) ===
+     * === Daftar produk untuk public/customer ===
      */
     public function index()
     {
         try {
-            $products = Product::with('category')->latest()->get();
-
-            $user = session('user');
-            if ($user && $user->role === 'admin') {
-                // Admin lihat tampilan admin
-                return view('admin.products.index', compact('products'));
-            }
-
-            // User biasa lihat tampilan umum
+            $products = Product::with('category')->where('stock', '>', 0)->latest()->get();
             return view('products.index', compact('products'));
-
         } catch (\Exception $e) {
             return back()->withErrors(['error' => 'Gagal memuat data produk: ' . $e->getMessage()]);
         }
     }
 
     /**
-     * === Detail produk (semua user bisa lihat) ===
+     * === Daftar produk untuk admin ===
+     */
+    public function adminIndex()
+    {
+        try {
+            $products = Product::with('category')->latest()->get();
+            return view('admin.products.index', compact('products'));
+        } catch (\Exception $e) {
+            return back()->withErrors(['error' => 'Gagal memuat data produk: ' . $e->getMessage()]);
+        }
+    }
+
+    /**
+     * === Detail produk untuk public ===
      */
     public function show(Product $product)
     {
         try {
             $product->load('category');
-
-            $user = session('user');
-            if ($user && $user->role === 'admin') {
-                return view('admin.products.show', compact('product'));
-            }
-
             return view('products.show', compact('product'));
         } catch (\Exception $e) {
             return back()->withErrors(['error' => 'Gagal memuat detail produk: ' . $e->getMessage()]);
@@ -55,12 +54,11 @@ class ProductController extends Controller
      */
     public function create()
     {
-        $user = session('user');
-        if (!$user || $user->role !== 'admin') {
-            return redirect('/dashboard')->withErrors(['error' => 'Akses ditolak. Hanya admin yang bisa menambah produk.']);
+        if (!Auth::check() || Auth::user()->role !== 'admin') {
+            abort(403);
         }
 
-        $categories = Category::all();
+        $categories = Categories::all();
         return view('admin.products.create', compact('categories'));
     }
 
@@ -70,9 +68,8 @@ class ProductController extends Controller
     public function store(Request $request)
     {
         try {
-            $user = session('user');
-            if (!$user || $user->role !== 'admin') {
-                return redirect('/dashboard')->withErrors(['error' => 'Akses ditolak.']);
+            if (!Auth::check() || Auth::user()->role !== 'admin') {
+                abort(403);
             }
 
             $request->validate([
@@ -92,7 +89,7 @@ class ProductController extends Controller
 
             Product::create($data);
 
-            return redirect()->to('/admin/products')->with('success', 'Produk berhasil ditambahkan!');
+            return redirect()->route('admin.products.index')->with('success', 'Produk berhasil ditambahkan!');
         } catch (\Exception $e) {
             return back()->withErrors(['error' => 'Gagal menambah produk: ' . $e->getMessage()])->withInput();
         }
@@ -103,12 +100,11 @@ class ProductController extends Controller
      */
     public function edit(Product $product)
     {
-        $user = session('user');
-        if (!$user || $user->role !== 'admin') {
-            return redirect('/dashboard')->withErrors(['error' => 'Akses ditolak.']);
+        if (!Auth::check() || Auth::user()->role !== 'admin') {
+            abort(403);
         }
 
-        $categories = Category::all();
+        $categories = Categories::all();
         return view('admin.products.edit', compact('product', 'categories'));
     }
 
@@ -118,9 +114,8 @@ class ProductController extends Controller
     public function update(Request $request, Product $product)
     {
         try {
-            $user = session('user');
-            if (!$user || $user->role !== 'admin') {
-                return redirect('/dashboard')->withErrors(['error' => 'Akses ditolak.']);
+            if (!Auth::check() || Auth::user()->role !== 'admin') {
+                abort(403);
             }
 
             $request->validate([
@@ -143,7 +138,7 @@ class ProductController extends Controller
 
             $product->update($data);
 
-            return redirect()->to('/admin/products')->with('success', 'Produk berhasil diperbarui!');
+            return redirect()->route('admin.products.index')->with('success', 'Produk berhasil diperbarui!');
         } catch (\Exception $e) {
             return back()->withErrors(['error' => 'Gagal memperbarui produk: ' . $e->getMessage()])->withInput();
         }
@@ -155,9 +150,8 @@ class ProductController extends Controller
     public function destroy(Product $product)
     {
         try {
-            $user = session('user');
-            if (!$user || $user->role !== 'admin') {
-                return redirect('/dashboard')->withErrors(['error' => 'Akses ditolak.']);
+            if (!Auth::check() || Auth::user()->role !== 'admin') {
+                abort(403);
             }
 
             if ($product->image) {
@@ -166,7 +160,7 @@ class ProductController extends Controller
 
             $product->delete();
 
-            return redirect()->to('/admin/products')->with('success', 'Produk berhasil dihapus!');
+            return redirect()->route('admin.products.index')->with('success', 'Produk berhasil dihapus!');
         } catch (\Exception $e) {
             return back()->withErrors(['error' => 'Gagal menghapus produk: ' . $e->getMessage()]);
         }

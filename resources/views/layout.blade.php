@@ -53,11 +53,11 @@
             <nav class="d-flex gap-4">
                 @auth
                     @if(Auth::user()->role === 'admin')
-                        <a href="{{ route('admin.dashboard') }}" class="nav-link">Dashboard</a>
-                        <a href="{{ route('products.index') }}" class="nav-link">Produk</a>
-                        <a href="{{ route('categories.index') }}" class="nav-link">Kategori</a>
-                        <a href="{{ route('orders.index') }}" class="nav-link">Pesanan</a>
-                        <a href="{{ route('logout') }}" class="nav-link">Logout</a>
+                    <a href="{{ route('admin.dashboard') }}" class="nav-link">Dashboard</a>
+                    <a href="{{ route('admin.products.index') }}" class="nav-link">Produk</a>
+                    <a href="{{ route('admin.categories.index') }}" class="nav-link">Kategori</a>
+                    <a href="{{ route('admin.orders.index') }}" class="nav-link">Pesanan</a>
+                    <a href="{{ route('logout') }}" class="nav-link">Logout</a>
                     @elseif(Auth::user()->role === 'customer')
                         <a href="{{ url('/') }}" class="nav-link">Home</a>
                         <a href="{{ route('products.index') }}" class="nav-link">Produk</a>

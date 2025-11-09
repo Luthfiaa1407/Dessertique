@@ -5,26 +5,31 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Order;
 use App\Models\Product;
+use Illuminate\Support\Facades\Auth;
 
 class OrderController extends Controller
 {
-    // Tampilkan daftar pesanan
+    // Tampilkan daftar pesanan untuk customer
     public function index()
     {
         try {
-            if (!session('user')) {
+            if (!Auth::check()) {
                 return redirect('/login')->withErrors(['error' => 'Silakan login terlebih dahulu!']);
             }
 
-            $user = session('user');
-
-            if ($user['role'] === 'admin') {
-                $orders = Order::with(['user', 'product'])->latest()->get();
-            } else {
-                $orders = Order::where('user_id', $user['id'])->with('product')->latest()->get();
-            }
-
+            $orders = Order::where('user_id', Auth::id())->with('product')->latest()->get();
             return view('orders.index', compact('orders'));
+        } catch (\Exception $e) {
+            return back()->withErrors(['error' => 'Gagal memuat data: ' . $e->getMessage()]);
+        }
+    }
+
+    // Tampilkan daftar pesanan untuk admin
+    public function adminIndex()
+    {
+        try {
+            $orders = Order::with(['user', 'product'])->latest()->get();
+            return view('admin.orders.index', compact('orders'));
         } catch (\Exception $e) {
             return back()->withErrors(['error' => 'Gagal memuat data: ' . $e->getMessage()]);
         }
@@ -33,7 +38,7 @@ class OrderController extends Controller
     // Form tambah pesanan
     public function create()
     {
-        if (!session('user')) {
+        if (!Auth::check()) {
             return redirect('/login')->withErrors(['error' => 'Silakan login terlebih dahulu!']);
         }
 
@@ -45,7 +50,7 @@ class OrderController extends Controller
     public function store(Request $request)
     {
         try {
-            if (!session('user')) {
+            if (!Auth::check()) {
                 return redirect('/login')->withErrors(['error' => 'Silakan login terlebih dahulu!']);
             }
 
@@ -62,12 +67,11 @@ class OrderController extends Controller
                 return back()->withErrors(['error' => 'Stok tidak mencukupi!'])->withInput();
             }
 
-            $user = session('user');
             $total_price = $product->price * $request->quantity;
 
             // Buat pesanan
             Order::create([
-                'user_id' => $user['id'],
+                'user_id' => Auth::id(),
                 'product_id' => $request->product_id,
                 'quantity' => $request->quantity,
                 'total_price' => $total_price,
@@ -89,18 +93,22 @@ class OrderController extends Controller
     public function show(Order $order)
     {
         try {
-            if (!session('user')) {
+            if (!Auth::check()) {
                 return redirect('/login')->withErrors(['error' => 'Silakan login terlebih dahulu!']);
             }
 
-            $user = session('user');
-
             // Hanya admin atau pemilik pesanan yang boleh lihat
-            if ($user['role'] !== 'admin' && $order->user_id !== $user['id']) {
+            if (Auth::user()->role !== 'admin' && $order->user_id !== Auth::id()) {
                 abort(403, 'Aksi tidak diizinkan.');
             }
 
             $order->load(['user', 'product']);
+            
+            // Tampilkan view yang berbeda untuk admin dan customer
+            if (Auth::user()->role === 'admin') {
+                return view('admin.orders.show', compact('order'));
+            }
+            
             return view('orders.show', compact('order'));
         } catch (\Exception $e) {
             return back()->withErrors(['error' => 'Gagal memuat detail: ' . $e->getMessage()]);
@@ -110,18 +118,18 @@ class OrderController extends Controller
     // Edit pesanan (admin only)
     public function edit(Order $order)
     {
-        if (!session('user') || session('user.role') !== 'admin') {
+        if (!Auth::check() || Auth::user()->role !== 'admin') {
             abort(403);
         }
 
-        return view('orders.edit', compact('order'));
+        return view('admin.orders.edit', compact('order'));
     }
 
     // Update status pesanan (admin only)
     public function update(Request $request, Order $order)
     {
         try {
-            if (!session('user') || session('user.role') !== 'admin') {
+            if (!Auth::check() || Auth::user()->role !== 'admin') {
                 abort(403);
             }
 
@@ -131,7 +139,7 @@ class OrderController extends Controller
 
             $order->update(['status' => $request->status]);
 
-            return redirect()->route('orders.index')->with('success', 'Status pesanan berhasil diupdate!');
+            return redirect()->route('admin.orders.index')->with('success', 'Status pesanan berhasil diupdate!');
         } catch (\Exception $e) {
             return back()->withErrors(['error' => 'Gagal update pesanan: ' . $e->getMessage()])
                 ->withInput();
@@ -142,13 +150,13 @@ class OrderController extends Controller
     public function destroy(Order $order)
     {
         try {
-            if (!session('user') || session('user.role') !== 'admin') {
+            if (!Auth::check() || Auth::user()->role !== 'admin') {
                 abort(403);
             }
 
             $order->delete();
 
-            return redirect()->route('orders.index')->with('success', 'Pesanan berhasil dihapus!');
+            return redirect()->route('admin.orders.index')->with('success', 'Pesanan berhasil dihapus!');
         } catch (\Exception $e) {
             return back()->withErrors(['error' => 'Gagal menghapus pesanan: ' . $e->getMessage()]);
         }
@@ -158,13 +166,11 @@ class OrderController extends Controller
     public function cancel(Order $order)
     {
         try {
-            if (!session('user')) {
+            if (!Auth::check()) {
                 return redirect('/login')->withErrors(['error' => 'Silakan login terlebih dahulu!']);
             }
 
-            $user = session('user');
-
-            if ($order->user_id !== $user['id']) {
+            if ($order->user_id !== Auth::id()) {
                 abort(403, 'Aksi tidak diizinkan.');
             }
 

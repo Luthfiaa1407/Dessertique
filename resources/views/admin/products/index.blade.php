@@ -5,7 +5,8 @@
 @section('content')
 <div class="d-flex justify-content-between align-items-center mb-3">
     <h2>Kelola Produk</h2>
-    <a href="{{ route('products.create') }}" class="btn btn-primary">+ Tambah Produk</a>
+    <!-- PERBAIKI: products.create → admin.products.create -->
+    <a href="{{ route('admin.products.create') }}" class="btn btn-primary">+ Tambah Produk</a>
 </div>
 
 @if(session('success'))
@@ -36,8 +37,11 @@
                 <td>Rp {{ number_format($product->price, 0, ',', '.') }}</td>
                 <td>{{ $product->stock }}</td>
                 <td>
-                    <a href="{{ route('products.edit', $product->id) }}" class="btn btn-sm btn-warning">Edit</a>
-                    <form action="{{ route('products.destroy', $product->id) }}"
+                    <!-- PERBAIKI: products.edit → admin.products.edit -->
+                    <a href="{{ route('admin.products.edit', $product->id) }}" class="btn btn-sm btn-warning">Edit</a>
+                    
+                    <!-- PERBAIKI: products.destroy → admin.products.destroy -->
+                    <form action="{{ route('admin.products.destroy', $product->id) }}"
                           method="POST" class="d-inline"
                           onsubmit="return confirm('Yakin hapus produk ini?')">
                         @csrf

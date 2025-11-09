@@ -2,31 +2,23 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use App\Models\Category;
-use App\Models\Order;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-class product extends Model
+class Product extends Model
 {
-    use HasFactory;
-
     protected $fillable = [
         'category_id',
-        'name',
+        'name', 
         'description',
         'price',
         'stock',
-        'image',
+        'image'
     ];
 
-    public function category()
+    // Relationship dengan categories - PERBAIKI INI
+    public function category(): BelongsTo
     {
-        return $this->belongsTo(Category::class);
-    }
-
-    public function orders()
-    {
-        return $this->hasMany(Order::class);
+        return $this->belongsTo(Categories::class, 'category_id'); // Ganti Category::class → Categories::class
     }
 }

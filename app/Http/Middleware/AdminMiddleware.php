@@ -4,16 +4,25 @@ namespace App\Http\Middleware;
 
 use Closure;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class AdminMiddleware
 {
     public function handle(Request $request, Closure $next)
     {
-        $user = session('user');
-        if(session()->get('role') == 'admin') {
-            return redirect('/dashboard')->withErrors(['error' => 'Akses ditolak. Anda bukan admin.']);
+        // Jika belum login
+        if (!Auth::check()) {
+            return redirect()->route('login');
         }
 
+        // Jika bukan admin, tolak akses
+        if (Auth::user()->role !== 'admin') {
+            return redirect()->route('dashboard')->withErrors([
+                'error' => 'Akses ditolak. Anda bukan admin.'
+            ]);
+        }
+
+        // Jika admin, lanjutkan request
         return $next($request);
     }
 }

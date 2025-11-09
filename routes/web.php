@@ -11,6 +11,7 @@ Route::get('/', function () {
     return view('welcome');
 });
 
+// Auth Routes
 Route::get('/register', [AuthController::class, 'showRegister'])->name('register.form');
 Route::post('/register', [AuthController::class, 'register'])->name('register');
 
@@ -18,15 +19,40 @@ Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
 Route::post('/login', [AuthController::class, 'login']);
 Route::middleware('auth')->get('/logout', [AuthController::class, 'logout'])->name('logout');
 
-Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {
-    Route::get('/dashboard', [AdminController::class, 'index'])->name('admin.dashboard');
-    Route::resource('products', ProductController::class)->except(['show', 'index']);
-    Route::resource('categories', CategoryController::class)->except(['show', 'index']);
-    Route::get('orders/{order}/edit', [OrderController::class, 'edit'])->name('orders.edit');
-    Route::put('orders/{order}', [OrderController::class, 'update'])->name('orders.update');
-    Route::delete('orders/{order}', [OrderController::class, 'destroy'])->name('orders.destroy');
+// Public Routes (bisa diakses semua orang)
+Route::get('categories', [CategoryController::class, 'index'])->name('categories.index');
+Route::get('categories/{category}', [CategoryController::class, 'show'])->name('categories.show');
+Route::get('products', [ProductController::class, 'index'])->name('products.index');
+Route::get('products/{product}', [ProductController::class, 'show'])->name('products.show');
+
+// Admin Routes
+Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(function () {
+    Route::get('/dashboard', [AdminController::class, 'index'])->name('dashboard');
+    
+    // Products Admin Routes
+    Route::get('/products', [ProductController::class, 'adminIndex'])->name('products.index');
+    Route::get('/products/create', [ProductController::class, 'create'])->name('products.create');
+    Route::post('/products', [ProductController::class, 'store'])->name('products.store');
+    Route::get('/products/{product}/edit', [ProductController::class, 'edit'])->name('products.edit');
+    Route::put('/products/{product}', [ProductController::class, 'update'])->name('products.update');
+    Route::delete('/products/{product}', [ProductController::class, 'destroy'])->name('products.destroy');
+    
+    // Categories Admin Routes
+    Route::get('/categories', [CategoryController::class, 'adminIndex'])->name('categories.index');
+    Route::get('/categories/create', [CategoryController::class, 'create'])->name('categories.create');
+    Route::post('/categories', [CategoryController::class, 'store'])->name('categories.store');
+    Route::get('/categories/{category}/edit', [CategoryController::class, 'edit'])->name('categories.edit');
+    Route::put('/categories/{category}', [CategoryController::class, 'update'])->name('categories.update');
+    Route::delete('/categories/{category}', [CategoryController::class, 'destroy'])->name('categories.destroy');
+    
+    // Orders Admin Routes
+    Route::get('/orders', [OrderController::class, 'adminIndex'])->name('orders.index');
+    Route::get('/orders/{order}/edit', [OrderController::class, 'edit'])->name('orders.edit');
+    Route::put('/orders/{order}', [OrderController::class, 'update'])->name('orders.update');
+    Route::delete('/orders/{order}', [OrderController::class, 'destroy'])->name('orders.destroy');
 });
 
+// Customer Routes
 Route::middleware('auth')->group(function () {
     Route::get('/dashboard', function () {
         return view('customer.dashboard');
@@ -38,11 +64,6 @@ Route::middleware('auth')->group(function () {
     Route::get('orders/{order}', [OrderController::class, 'show'])->name('orders.show');
     Route::post('orders/{order}/cancel', [OrderController::class, 'cancel'])->name('orders.cancel');
 });
-
-Route::get('categories', [CategoryController::class, 'index'])->name('categories.index');
-Route::get('categories/{category}', [CategoryController::class, 'show'])->name('categories.show');
-Route::get('products', [ProductController::class, 'index'])->name('products.index');
-Route::get('products/{product}', [ProductController::class, 'show'])->name('products.show');
 
 Route::fallback(function () {
     abort(404, 'Halaman tidak ditemukan.');
