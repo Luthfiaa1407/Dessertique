@@ -20,7 +20,7 @@ class AuthController extends Controller
             $request->validate([
                 'name' => 'required|string|max:255',
                 'email' => 'required|string|email|max:255|unique:users,email',
-                'password' => 'required|string|min:6|confirmed',
+                'password' => 'required|min:6|confirmed',
             ]);
 
             $user = User::create([
@@ -53,7 +53,12 @@ class AuthController extends Controller
 
         if ($user && Hash::check($request->password, $user->password)) {
             Session::put('user', $user);
-            return redirect()->route('dashboard')->with('success', 'Berhasil login!');
+
+            if($user->role === 'admin'){
+            return redirect()->route('admin.dashboard')->with('success', 'Selamat datang, Admin!');
+            } else {
+                return redirect()->route('dashboard')->with('success', 'Berhasil login!');
+            }
         } else {
             return back()->with('error', 'Email atau password salah.')->withInput();
         }
