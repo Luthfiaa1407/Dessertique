@@ -52,31 +52,75 @@ class CustomerController extends Controller
         }
     }
 
-    // Profile customer (tetap sama)
+    // Tampilkan profil customer
     public function profile()
     {
-        return view('customer.profile', ['user' => Auth::user()]);
+        $user = Auth::user();
+
+        $orders = Order::where('user_id', $user->id);
+        $orderCount = $orders->count();
+        $pendingCount = (clone $orders)->where('status', 'pending')->count();
+
+        $lastOrder = (clone $orders)->latest()->first();
+        $lastAddress = $lastOrder->address ?? null;
+        $lastOrderDate = $lastOrder ? $lastOrder->created_at->format('d M Y') : null;
+
+        return view('customer.profile', compact(
+            'user',
+            'orderCount',
+            'pendingCount',
+            'lastAddress',
+            'lastOrderDate'
+        ));
     }
 
-    // Update profile customer (tetap sama)
+    // Update profil customer
     public function updateProfile(Request $request)
     {
         try {
             $user = Auth::user();
-            
+
             $request->validate([
                 'name' => 'required|string|max:255',
                 'email' => 'required|email|unique:users,email,' . $user->id,
-                'phone' => 'nullable|string|max:15',
-                'address' => 'nullable|string'
             ]);
 
-            $user->update($request->all());
-            
-            return redirect()->route('customer.profile')->with('success', 'Profile berhasil diupdate!');
+            $user->update([
+                'name' => $request->name,
+                'email' => $request->email,
+            ]);
+
+            // Refresh auth session
+            Auth::setUser($user->fresh());
+
+            return redirect()->route('customer.profile')->with('success', 'Profil berhasil diperbarui!');
         } catch (\Exception $e) {
-            return back()->withErrors(['error' => 'Gagal update profile: ' . $e->getMessage()])
-                ->withInput();
+            return back()->withErrors(['error' => 'Gagal memperbarui profil: ' . $e->getMessage()])
+                         ->withInput();
         }
+    }
+
+    // 🔹 Update password customer
+    public function updatePassword(Request $request)
+    {
+        $user = Auth::user();
+
+        $request->validate([
+            'current_password' => 'required',
+            'new_password' => 'required|min:6|confirmed',
+        ], [
+            'new_password.confirmed' => 'Konfirmasi password tidak cocok.',
+            'new_password.min' => 'Password baru minimal 6 karakter.',
+        ]);
+
+        if (!Hash::check($request->current_password, $user->password)) {
+            return back()->withErrors(['current_password' => 'Password lama tidak sesuai.']);
+        }
+
+        $user->update([
+            'password' => Hash::make($request->new_password),
+        ]);
+
+        return back()->with('success', 'Password berhasil diubah!');
     }
 }

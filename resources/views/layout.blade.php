@@ -61,9 +61,8 @@
                             @elseif(Auth::user()->role === 'customer')
                                 <li class="nav-item"><a href="{{ route('customer.dashboard') }}" class="nav-link">Dashboard</a></li>
                                 <li class="nav-item"><a href="{{ route('products.index') }}" class="nav-link">Semua Produk</a></li>
-                                <li class="nav-item"><a href="{{ route('categories.index') }}" class="nav-link">Kategori</a></li>
                                 <li class="nav-item"><a href="{{ route('orders.index') }}" class="nav-link">Pesanan Saya</a></li>
-                                <li class="nav-item"><a href="{{ route('customer.profile') }}" class="nav-link">Profil</a></li>
+                                <li class="nav-item"><a href="{{ route('customer.profile') }}" class="nav-link">Profile</a></li>
                                 <li class="nav-item"><a href="{{ route('logout') }}" class="nav-link">Logout</a></li>
                             @endif
                         @endauth
